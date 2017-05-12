@@ -1,0 +1,193 @@
+#!/usr/bin/perl -w
+
+# average:  Find the average of a set of numbers.
+#
+# Copyright (C) 2002 Suso Banderas
+
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+#
+# You may contact the author at <suso@suso.org>.
+
+#######################
+# VARIABLES AND SETUP #
+#######################
+
+use Getopt::Std;
+use strict;
+use vars qw/ %opts $verbose /;
+
+getopts('dhiIqV', \%opts);
+
+if ($opts{'h'}) {
+    &help();
+    exit(0);
+}
+
+if ($opts{'d'}) {
+    $verbose = 3;
+    print STDERR "Debug mode\n";
+} elsif ($opts{'V'}) {
+    $verbose = 2;
+    print STDERR "Verbose mode\n";
+} elsif ($opts{'q'}) {
+    $verbose = 0;  # Nothing except the final answer
+} else {
+    $verbose = 1;  # Normal warnings and such.
+}
+
+my ($file, @number_array, $number, $total_numbers, @numbers, $strlen);
+my $sum_total = 0;
+
+################
+# MAIN PROGRAM #
+################
+
+# For file args
+if (@ARGV) {
+    foreach $file (@ARGV) {
+        print STDERR "Reading from file $file.\n" if ($verbose >= 2);
+        open (ARGFILE, "$file") &&
+         process_filehandle(\*ARGFILE, \@number_array) ||
+        $verbose && warn "Couldn't open file $file for reading: $!\n";
+        close (ARGFILE);
+    }
+# For STDIN
+} else {
+    print STDERR "Reading from STDIN.\n" if ($verbose >= 2);
+    process_filehandle(\*STDIN, \@number_array);
+}
+
+my $average = calculate_mean(\@number_array);
+
+if ($opts{'i'}) {
+    $average = int($average);
+} elsif ($opts{'I'}) {
+    if ($average == int($average)) {
+        $average = 0;
+    } else {
+        $average =~ s/^(\-?)[0-9]*\.([0-9]*)$/$1.$2/;
+    }
+}
+
+print "$average\n";
+
+
+###############
+# SUBROUTINES #
+###############
+
+sub help {
+	print <<"EOF";
+---------------------------------------------------------
+average : A program for finding the average of numbers.
+---------------------------------------------------------
+Usage:
+    average [options] file
+    | average [options]
+    average [options]
+
+Options:
+        -i      Only return the integer portion of the final sum.
+        -I      Only return the decimal portion of the final sum
+
+        -d      Debug. For developers only.
+        -h      Help: You're looking at it.
+        -V      Increase verbosity.
+        -q      Quiet mode, don't print any warnings.
+EOF
+}
+
+sub process_filehandle {
+    my $filehandle = shift;
+    my $number_array_ref = shift;
+
+    while (<$filehandle>) {
+        if (m/^\s*(\-?[0-9]*\.?[0-9]+)/) {
+            print STDERR "found number: $1\n" if ($verbose >= 3);
+            push(@$number_array_ref, $1);
+        }
+    }
+    return 1;
+}
+
+sub calculate_mean {
+    my $number_array_ref = shift;
+
+    my $number_of_numbers = @$number_array_ref;
+    my $runningtotal = 0;
+    foreach $number (@$number_array_ref) {
+        $runningtotal += $number;
+        print STDERR "adding number: $number  (total: $runningtotal)\n" if ($verbose >= 3);
+    }
+    $average = $runningtotal / $number_of_numbers;
+    print STDERR "averaging numbers: $runningtotal total / $number_of_numbers numbers = $average\n" if ($verbose >= 2);
+    return $average;
+}
+
+# Lay down some of that perl pod action.
+=pod
+
+=head1 NAME
+
+average - Find the average of a set of numbers.
+
+=head1 SYNOPSIS
+
+B<average> [-dhiIV] <FILE>
+
+| B<average> [-dhiIV]    (Input on STDIN from pipeline.)
+
+B<average> [-dhiIV]      (Input on STDIN.  Use Ctrl-D to stop.)
+
+=head1 DESCRIPTION
+
+B<average> is a program that is part of the numeric utilities package.  B<average>
+will determine the average from all numbers on input.
+
+=head1 OPTIONS
+
+    -i  Only return the integer portion of the final sum.
+    -I  Only return the decimal portion of the final sum
+
+    -h  Help: You're looking at it.
+    -V  Increase verbosity.
+    -d  Debug mode.  For developers
+
+
+=head1 SEE ALSO
+
+bound(1), numgrep(1), numprocess(1), numsum(1), random(1), range(1), round(1)
+
+=head1 COPYRIGHT
+
+average is part of the num-utils package, which is copyrighted by
+Suso Banderas and released under the GPL license.  Please read
+the COPYING and LICENSE files that came with the num-utils package
+
+  Developers can read the GOALS file and contact me about providing
+submitions or help for the project.
+
+=head1 MORE INFO
+
+More info on average can be found at:
+
+=over 1
+
+=item B<http://suso.suso.org/programs/num-utils/>
+
+=back
+
+=cut
+
