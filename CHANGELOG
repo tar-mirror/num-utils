@@ -1,4 +1,19 @@
 
+ May  29th, 2003 20:12 GMT
+--------------------------
+ Second Beta Release v0.2
+
+ - Fixed formatting in GOALS document.
+ - Added some of the features submitted by areiner@tph.tuwien.ac.at 
+   to the GOALS file.
+ - Added helpful information for the 'bound' program to explain that the
+   default is to find the maximum number.
+ - Added code to 'numgrep' to handle factors and multiples.
+ - Added expression info and examples to 'numgrep' man page/pod and help output.
+ - Added code and documentation for -e (exclude) option for 'range'. 
+ - Fixed a few things in the README.
+ - Made the sqrt function in numprocess process negative numbers as imaginary.
+
  June 17th, 2002 13:00 GMT
 --------------------------
 

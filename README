@@ -1,6 +1,6 @@
 
- num-utils is Copyright 2002 Suso Banderas
-====================-----------------------
+ num-utils is Copyright 2002-2003 Suso Banderas
+====================----------------------------
 
 **PLEASE ALSO READ THE WARNING FILE THAT**
       **COMES WITH THIS PROGRAM.**
@@ -14,11 +14,6 @@
  fixes or suggestions to improve this program, please see the "Contact"
  section of this document .  An extensive list of planned features is
  in the 'GOALS' file included with this program.
-
-  I'm also currently learning how to program in C so that I can rewrite
- the programs in C.  I'll probably be including alpha source code of the
- C equivilents along side their Perl counterparts for a while until they
- are stable enough.
 
   Installation
   ------------

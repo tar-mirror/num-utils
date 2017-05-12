@@ -2,7 +2,7 @@
 
 # range: Print out a range of numbers for use in for loops and such.
 #   
-# Copyright (C) 2002 Suso Banderas
+# Copyright (C) 2002-2003 Suso Banderas
 
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -30,7 +30,7 @@ use vars qw/ %opts $verbose /;
 
 my ($expression, @output_array, $number);
 
-getopts('n:NhdV', \%opts);
+getopts('e:n:NhdV', \%opts);
 
 if ($opts{'h'}) {
     &help();
@@ -59,6 +59,12 @@ $separator =~ s/\\n/\n/g;
 $separator = "\n" if ($opts{'N'});
 
 
+# Make the array of excluded numbers
+my @excludes;
+if ($opts{'e'}) {
+    @excludes = split(/,/, $opts{'e'});
+}
+
 ################
 # MAIN PROGRAM #
 ################
@@ -74,12 +80,14 @@ foreach $expression (@range_expressions) {
         if ($1 > $2) {
             my $number = $1;
             while ($number >= $2) {
+                next if grep(/^$number$/, @excludes);
                 push (@output_array, $number);
                 $number--;
             }
         } else {
             my $number;
             foreach $number ($1..$2) {
+                next if grep(/^$number$/, @excludes);
                 push (@output_array, $number);
             }
         }
@@ -88,6 +96,7 @@ foreach $expression (@range_expressions) {
         if ($1 > $2) {
             my $number = $1;
             while ($number >= $2) {
+                next if grep(/^$number$/, @excludes);
                 $number = eval($number);  # This fixes a stupid computer math problem.
                 push (@output_array, $number);
                 $number = $number - $3;
@@ -95,6 +104,7 @@ foreach $expression (@range_expressions) {
         } else {
             my $number = $1;
             while ($number <= $2) {
+                next if grep(/^$number$/, @excludes);
                 $number = eval($number);  # This fixes a stupid computer math problem.
                 push (@output_array, $number);
                 $number = $number + $3;
@@ -134,9 +144,12 @@ Usage:
     range [options] /<expression>/
 
 Options:
+        -e <set> Exclude the <set> of numbers from the range output.  <set>
+                is a set of numbers separated by commas.
         -n <n>  Use <n> as a separator between numbers.  By default, it
                 is a space, use '\n' or \\n for newline or the -N option.
         -N      Just a quick option for using a newline as the separator.
+
         -d      Debug. For developers only.
         -h      Help: You're looking at it.
         -V      Increase verbosity.
@@ -177,10 +190,12 @@ and the 'i' increment operator.
 
 =head1 OPTIONS
 
+    -e <set> Exclude the <set> of numbers from the range output.  <set>
+       is a set of numbers separated by commas.
     -n <n> Use <n> as the separator between numbers.  By default, it
        will use a space.  Use '\n' or \\n for a newline character or
        use the -N option.
-    -N      Just a quick option for using a newline as the separator.
+    -N  Just a quick option for using a newline as the separator.
 
     -h  Help: You're looking at it.
     -V  Increase verbosity.

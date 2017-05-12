@@ -1,6 +1,6 @@
-# $Id: Makefile,v 1.8 2002/06/17 18:08:44 suso Exp $
+# $Id: Makefile,v 1.10 2003/05/29 21:42:12 suso Exp $
 # num-utils         A set of programs for doing operations on numbers
-# Copyright (C) 2002 Suso Banderas
+# Copyright (C) 2002-2003 Suso Banderas
 
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -37,7 +37,7 @@ PERL	= /usr/bin/perl
 BINDIR	= /usr/bin
 TOPDIR	= $(ROOT)/usr
 MANDIR	= $(TOPDIR)/share/man/man1
-DOCDIR	= $(TOPDIR)/doc/$(DIST)
+DOCDIR	= $(TOPDIR)/share/doc/$(DIST)
 BINDIR	= $(TOPDIR)/bin
 TARFILE	= $(DIST).tar.gz
 RPMFILE	= $(RPMDIR)
@@ -128,7 +128,7 @@ $(SRPMFILE): do-rpm
 do-rpm: $(TARFILE) $(SPECFILE)
 	cp $(SPECFILE) $(RPMDIR)/SPECS/
 	cp $(TARFILE) $(RPMDIR)/SOURCES/
-	rpm -ba $(RPMDIR)/SPECS/$(SPECFILE)
+	rpmbuild -ba $(RPMDIR)/SPECS/$(SPECFILE)
 
 $(SPECFILE): $(SPECFILE).in VERSION
 	perl -pe 's[\@(\S+)\@] \

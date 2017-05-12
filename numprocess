@@ -2,7 +2,7 @@
 
 # numprocess: This program mutates numbers as it encounters them.
 #   
-# Copyright (C) 2002 Suso Banderas
+# Copyright (C) 2002-2003 Suso Banderas
 
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -85,14 +85,35 @@ numprocess: This program mutates numbers as it encounters them.
 -----------------------------------------------------------------
 Usage:
 
-    numprocess [options] <file>
-    | numprocess [options]
-    numprocess [options]
+    numprocess [options] /<expression>/ <file>
+    | numprocess [options] /<expression>/
+    numprocess [options] /<expression>/
 
 Options:
         -d      Debug. For developers only.
         -h      Help: You're looking at it.
         -V      Increase verbosity.
+
+Expressions:
+  Put a list of operations to do on each number in the expression area.
+  Possible expressions:
+
+   +     Addition
+   -     Subtraction
+   *     Multiplication
+   %     Division
+   ^     Power function
+   sqrt  Square Root
+   sin   Sine function
+   cos   Cosine function
+
+   Constants and keywords that can be used
+
+    pi    3.141592654
+    e     2.718281828
+
+  See the man page for more details.
+
 EOF
 }
 
@@ -129,7 +150,13 @@ sub process_number {
         } elsif ($operation =~ /^\^($match_expression)$/) {
             $new_number = $new_number^$1;
         } elsif ($operation =~ /^sqrt$/) {
-            $new_number = sqrt($new_number);
+            if ($new_number < 0) { # let's do something nice for negative sqrts.
+                $new_number *= -1;
+                $new_number = sqrt($new_number);
+                $new_number .= "i"; # for imaginary. Just like in High School Algebra.
+            } else {
+                $new_number = sqrt($new_number);
+            }
         } else {
             print "Encountered invalid expression $operation in $expression.\n" if ($verbose >= 2);
             return $number;
@@ -188,7 +215,7 @@ of the original number.
    *     Multiplication
    %     Division
    ^     Power function
-   sqrt  Square Root
+   sqrt  Square Root  (*)
    sin   Sine function
    cos   Cosine function
 
@@ -197,6 +224,9 @@ of the original number.
     pi    3.141592654
     e     2.718281828
 
+  (*) When using the sqrt operation on negative numbers, it will take the
+     absolute value of the number, sqrt it and then tack an i on the end
+     of the result to signify that the resulting number is imaginary.
 
 =head1 OPTIONS
 
@@ -208,6 +238,12 @@ of the original number.
 =head1 SEE ALSO
 
 average(1), bound(1), numgrep(1), numsum(1), random(1), range(1), round(1)
+
+=head1 BUGS
+
+There is currently no way to take the number found in the text stream and
+use it as the numerator instead of the denominator of a division operation.
+
 
 =head1 COPYRIGHT
 

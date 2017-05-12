@@ -1,4 +1,4 @@
-# $Id: num-utils.spec.in,v 1.7 2002/06/17 18:08:44 suso Exp $
+# $Id: num-utils.spec.in,v 1.8 2003/05/29 21:38:14 suso Exp $
 
 Summary: num-utils are a set of programs for dealing with numbers.
 Name: num-utils
@@ -50,5 +50,8 @@ make ROOT="$RPM_BUILD_ROOT" rpminstall
 
 
 %changelog
+* Thu May 29 2003 Suso Banderas <suso@suso.org>
+- 0.2 beta release.
+
 * Mon Jun 17 2002 Suso Banderas <suso@suso.org>
 - Initial 0.1 release of the num-utils
