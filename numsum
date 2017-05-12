@@ -3,7 +3,7 @@
 # numsum:  This program adds up all numbers it encounters and prints out
 #          the total at the end on STDOUT. 
 #   
-# Copyright (C) 2002-2003 Suso Banderas
+# Copyright (C) 2002-2004 Suso Banderas
 
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -26,12 +26,12 @@
 #######################
 
 use Getopt::Std;
-use strict;
+#use strict;
 use vars qw/ %opts /;
 
-my ($file, $finalsum, @number_array, $verbose);
+my ($file, $finalsum, @number_array, @columns_to_print, @column_output, $output_line, $string_seperator, $verbose);
 
-getopts('dhiIqV', \%opts);
+getopts('123456789cdhiIqrs:Vx:y:', \%opts);
 
 
 if ($opts{'h'}) {
@@ -51,6 +51,30 @@ if ($opts{'d'}) {
     $verbose = 1;  # Normal output.
 }
 
+# I'm not sure whether this should stay in or not.  It's mainly just for convience.
+# It's a bad hack because you can only specify 1 through 9.  Maybe sometime I'll figure
+# out how to bypass getopts to specify extra options.
+for ($n = 1 ; $n < 10; $n++) {
+    if ($opts{$n}) {
+        $opts{'c'} = 1;
+        $opts{'x'} = $n;
+    }
+}
+
+if ($opts{'x'}) {
+    @columns_to_print = split(/,/, $opts{'x'});
+}
+
+if ($opts{'y'}) {
+    @rows_to_print = split(/,/, $opts{'y'});
+}
+
+if ($opts{'s'}) {
+    $string_seperator = $opts{'s'};
+} else {
+    $string_seperator = "\\s+";
+}
+
 
 ################
 # MAIN PROGRAM #
@@ -68,19 +92,69 @@ if (@ARGV) {
     process_filehandle(\*STDIN, \@number_array);
 }
 
-$finalsum = add_array(\@number_array);
+my $number_array_length = @number_array;
 
-if ($opts{'i'}) {
-    $finalsum = int($finalsum);
-} elsif ($opts{'I'}) {
-    if ($finalsum == int($finalsum)) {
-        $finalsum = 0;
-    } else {
-        $finalsum =~ s/^(\-?)[0-9]*\.([0-9]*)$/$1.$2/;
+if ($opts{'c'}) { # Handle column sum output.
+  
+    my @column_output = ();
+    my $i;
+    for ($i = 0; $i < $number_array_length; $i++) {
+        my @add_this_array = split(/$string_seperator/, $number_array[$i]);
+        sum_columns(\@column_output, \@add_this_array);
     }
-}
 
-print "$finalsum\n";
+    # Now print out the columular output.
+    if ($opts{'x'}) {
+        my @final_output = ();
+        foreach $column_number (@columns_to_print) {
+            push (@final_output, $column_output[$column_number-1]);
+        }
+        $output_line = join(" ", @final_output);
+    } else {
+        $output_line = join(" ", @column_output);
+    }
+
+    print "$output_line\n";
+
+} elsif ($opts{'r'}) { # Handle row sum output.
+
+    my $i;
+    if ($opts{'y'}) {
+        foreach $row_number (@rows_to_print) {
+            my @add_this_array = split(/ /, $number_array[$row_number-1]);
+            my $row_sum = 0;
+            foreach $row_value (@add_this_array) {
+                $row_sum += $row_value;
+            }
+            print "$row_sum\n";
+        }
+    } else {
+        for ($i = 0; $i < $number_array_length; $i++) {
+            my @add_this_array = split(/ /, $number_array[$i]);
+            my $row_sum = 0;
+            foreach $row_value (@add_this_array) {
+                next if ($row_value !~ m/^[0-9]+$/);
+                $row_sum += $row_value;
+            }
+            print "$row_sum\n";
+        }
+    }
+
+} else {
+    $finalsum = add_array(\@number_array);
+
+    if ($opts{'i'}) {
+        $finalsum = int($finalsum);
+    } elsif ($opts{'I'}) {
+        if ($finalsum == int($finalsum)) {
+            $finalsum = 0;
+        } else {
+            $finalsum =~ s/^(\-?)[0-9]*\.([0-9]*)$/$1.$2/;
+        }
+    }
+
+    print "$finalsum\n";
+}
 
 exit(0);
 
@@ -103,6 +177,15 @@ Options:
         -i      Only return the integer portion of the final sum.
         -I      Only return the decimal portion of the final sum
 
+        -c      Print out the sum of each column.
+        -r      Print out the sum of each row.
+
+        -x <n>  Specify a comma seperated list of columns to print.
+        -y <n>  Specify a comma seperated list of rows to print.
+
+        -s <string> Specify a seperator string for spliting columns.
+                    This defaults to consecutive whitespace.
+
         -d      Debug. For developers only.
         -h      Help: You're looking at it.
         -V      Increase verbosity.
@@ -117,13 +200,33 @@ sub process_filehandle {
     my $number_array_ref = shift;
 
     while (<$filehandle>) {
-        if ($_ =~ /^\s*(\-?[0-9]*\.?[0-9]+)/) {
-            print STDERR "number: $1\n" if ($verbose >= 3);
-            push(@$number_array_ref, $1);
+        my $line = $_;
+        chomp($line);
+        if ($opts{'c'} || $opts{'r'}) {   # Process columns or rows
+
+            # Make each line column friendly by changing all non-numeric words into 0.
+
+
+            # Some ideas from the #perl channel on irc.freenode.org.  Thanks to v, dkr, Khisanth and dudeman
+
+            #$input = join ' ', map { /\D/ ? 0 : $_ } split / +/, $input;
+            #s!(\S+)!$1=~/\D/?0:$1!ge;
+          
+            # This one works best. 
+            $line =~ s!(\S+)!$1=~/\D/?0:$1!ge;
+
+            push(@$number_array_ref, $line);
+
+        } else {   # Normal processing.
+            if ($line =~ /^\s*(\-?[0-9]*\.?[0-9]+)/) {
+                print STDERR "number: $1\n" if ($verbose >= 3);
+                push(@$number_array_ref, $1);
+            }
         }
     }
     return 1;
 }
+
 
 # Function for adding up numbers
 sub add_array {
@@ -138,6 +241,23 @@ sub add_array {
     return $runningtotal;
 }
 
+# Function for summing up the columns.
+sub sum_columns {
+    my $sum_array_ref = shift;
+    my $input_array_ref = shift;
+
+
+    my $input_array_length = @$input_array_ref;
+    my $x;
+    for ($x = 0; $x < $input_array_length; $x++) {
+        if (${$sum_array_ref}[$x]) {
+            ${$sum_array_ref}[$x] += ${$input_array_ref}[$x];
+        } else {
+            ${$sum_array_ref}[$x] = ${$input_array_ref}[$x];
+        }
+    }
+    return 1;
+}
 
 # Lay down some of that perl pod action.
 =pod
@@ -148,11 +268,11 @@ numsum - numsum program file
 
 =head1 SYNOPSIS
 
-B<numsum> [-iIdhv] <FILE>
+B<numsum> [-iIcdhrsvxy] <FILE>
 
-| B<numsum> [-iIdhv]   (Input on STDIN from pipeline.)
+| B<numsum> [-iIcdhrsvxy]   (Input on STDIN from pipeline.)
 
-B<numsum> [-iIdhv]     (Input on STDIN.  Use Ctrl-D to stop.)
+B<numsum> [-iIcdhrsvxy]     (Input on STDIN.  Use Ctrl-D to stop.)
 
 
 =head1 DESCRIPTION
@@ -166,6 +286,15 @@ handles negative numbers and numbers with decimals.
 
     -i  Only return the integer portion of the final sum.
     -I  Only return the decimal portion of the final sum.
+
+    -c      Print out the sum of each column.
+    -r      Print out the sum of each row.
+
+    -x <n>  Specify a comma seperated list of columns to print.
+    -y <n>  Specify a comma seperated list of rows to print.
+
+    -s <string> Specify a string to use as a seperator for columns.
+                This defaults to be consecutive whitespace (\s+).
 
     -h  Help: You're looking at it.
     -V  Increase verbosity.
@@ -187,12 +316,46 @@ Enter your own numbers on STDIN. The last number is the answer.
     223
 
 Use it in a command pipeline.
-    $ ls -1s | numsum
+    $ ls -1s | grep .mp3 | numsum -c -x 5
     72288
 
 Add up the total byte count in a http log file.
     $ cat access_log | awk {'print $10'} numsum
 
+    or 
+
+    numsum -c -x 10 access_log
+
+Add up the columns of numbers of a file.
+
+    $ cat columns
+    1 6 11 16 21
+    2 7 12 17 22
+    3 8 13 18 23
+    4 9 14 19 24
+    5 10 15 20 25
+    $ numsum -c columns
+    15 40 65 90 115
+
+Add up the 1st, 2nd and 5th columns only.
+
+    $ numsum -c -x 1,2,5 columns
+    15 40 115    
+
+Add up the rows of numbers of a file.
+
+     $ numsum -r columns
+     55
+     60
+     65
+     70
+     75
+
+Add up the 2nd and 4th rows.
+
+     $ numsum -r -y 2,4 columns
+     60
+     70
 
 =head1 SEE ALSO
 

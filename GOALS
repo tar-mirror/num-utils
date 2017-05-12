@@ -97,6 +97,7 @@ X   -d   -- Debug information for developers.  This implies verbose and more.
 
      o tar format, both gz and bz2
      o rpm package
+     o gentoo ebuild tree
      o deb package
 
  7. The Makefile should be setup to be able to create the different package
@@ -180,16 +181,16 @@ X   -d   -- Debug information for developers.  This implies verbose and more.
 
    -a   -- Add all numbers in the file, not just the first ones found on each
            line.   
-   -c   -- Treat each line as a set of columns separated by white space, or a
+X  -c   -- Treat each line as a set of columns separated by white space, or a
            string if the -s option is used.  Sum up the values in each column
            and print out the result of each column seperated by the seperation
            character.  This is shown above in the advanced examples section.
-   -s <string>  [for columns]
+X  -s <string>  [for columns]
         -- Use <string> as the separator between each column.  This is allowed
            to be more than one character and possibly even a number.
-   -r   -- Treat each line (by default) as a row of numbers to sum up.  The
+X  -r   -- Treat each line (by default) as a row of numbers to sum up.  The
            results of the sums of each row will be printed on seperate lines.
-   -s <string>  [for rows]
+   -s <string>  [for rows] 
         -- When used with the -r flag, this will specify the seperator for
            rows.  By default it is the new line character.  It could be a
            character, set of characters or even a number.
@@ -207,10 +208,18 @@ X   -d   -- Debug information for developers.  This implies verbose and more.
 
  Options that might be included eventually.
 
-   -<n> -- Where <n> is some number.  This would be a shortcut for adding up
+X  -x <n> -- Where <n> is some number.  This would be a shortcut for adding up
            all the numbers in the <n>th column of the input.  By default, the
            columns would be determined by white space, but could also be
-           determined by the -s flag.
+           determined by the -s flag.  This must be used with the -c or -r flag.
+           So you can do something like:
+           
+           $ numsum -c -x 10 access_log  
+
+           To get the total bytes transfered in an access_log.
+
+           Maybe this could also be able to handle comma seperated values, so
+           1,5,10 would sum up the 1st, 5th and 10th columns.
 
 
 -- numgrep --
@@ -238,7 +247,7 @@ X  o search for numbers from -10 to 10.
 
       numgrep /-10..10/ data.txt
 
-   o search for numbers that are multiples of 7
+X  o search for numbers that are multiples of 7
    
       numgrep /m7/  data.txt
 
@@ -253,7 +262,7 @@ X  o search for numbers from -10 to 10.
 
    o seach for numbers that are in the set 1, 4, 7, 10, 13 and 16
    
-      numgrep /1..16%3/ data.txt
+      numgrep /1..16i3/ data.txt
 
  Usage options  (in addition to the standard options)
 
@@ -317,17 +326,17 @@ mode values.
     
   Usage options:
 
-   -m   -- Print out the mode value of all the numbers entered.  The mode is
+X  -m   -- Print out the mode value of all the numbers entered.  The mode is
            the most frequently occuring value in the set.
 
-   -M   -- Print out the median of the set of numbers entered.  The median is
+X  -M   -- Print out the median of the set of numbers entered.  The median is
            the middle value all all numbers encountered.  So if the numbers
            88, 12, 2, 1, 9, 100 and 1000 are encountered, the median of that
            set is 12.  Illustrated:
 
               1 2 9 12 88 100 1000
                     ^^
-   -l   -- Use the lower number of the median on even counted sets.
+X  -l   -- Use the lower number of the median on even counted sets.
 
    -a   -- average all numbers in the file, not just the first ones found on
            each line.   
@@ -349,10 +358,10 @@ mode values.
 
  Options that might be included eventually.
 
-   -<n> -- Where <n> is some number.  This would be a shortcut for averaging
+   -n <n> -- Where <n> is some number.  This would be a shortcut for averaging
            all the numbers in the <n>th column of the input.  By default, the
            columns would be determined by white space, but could also be
-           determined by the -s flag.
+           determined by the -s flag.  This must be used with the -c or -r flags.
 
 
 
@@ -361,9 +370,12 @@ mode values.
 
 -- normalize --
 
+  This program will distribute a group of numbers between 0 and 1 by default according
+  to their initial value.  You can change the range using the -R option.
+
   Usage options:
 
-  -R <range>  --  THis is for specifying a range to normalize for instead of 0..1
+X  -R <range>  --  This is for specifying a range to normalize for instead of 0..1
 
 
 
@@ -376,14 +388,14 @@ mode values.
 
    Options:
    
-    -n <n>  -- Round to the nearest factor of <n>.  Instead of just rounding all
+X   -n <n>  -- Round to the nearest factor of <n>.  Instead of just rounding all
               decimal numbers, you can also round to a factor of any number.  So
               if you set <n> to 1000 and you encounter the number 6777, it will
               round that number to 7000.  If you set <n> to 3 and encounter the
               number 7, it will round it to 6.
  
-    -c  -- Find the ceiling of each number encountered.  Round up.
-    -f  -- Find the floor of each number.  Round down.
+X   -c  -- Find the ceiling of each number encountered.  Round up.
+X   -f  -- Find the floor of each number.  Round down.
 
 
 -- range --
@@ -410,11 +422,11 @@ mode values.
 
    -p <prefix> -- Put the following prefix before each number.
    -s <suffix> -- Put the following suffix after each number.
-   -n <separator> -- Use <separator> as a character to separate each number.
+X  -n <separator> -- Use <separator> as a character to separate each number.
                     By default, a space is used.  Use the sequence \n to specify
                     a newline.
-   -N          -- Shortcut for using a newline separator.
-   -e <set>
+X  -N          -- Shortcut for using a newline separator.
+X  -e <set>
       -- Exclude the numbers in <set> from the output.  This is so that if
          you want to do a complex range without including certain numbers.
          <set> is a list of numbers seperated by a ','.
