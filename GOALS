@@ -194,6 +194,16 @@ X   -d   -- Debug information for developers.  This implies verbose and more.
            rows.  By default it is the new line character.  It could be a
            character, set of characters or even a number.
 
+   -t <x>  
+        -- When used, it will add up every <x>th number and at the end
+           print out <x> rows showing the sums of each <x>th number.  This
+           would be useful for example if you had data from each day of the
+           month and you wanted to sum up the date for each week day.
+           So you might do something like this
+
+           $ cat monthly-data | numsum -t 7
+          
+
 
  Options that might be included eventually.
 
@@ -517,4 +527,9 @@ distribution with mean 3 and variance 4.
 
 
 
+-- interval --
 
+  This program calculates and displays the interval between one number
+  and the next.
+
+  

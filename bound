@@ -181,7 +181,7 @@ all the numbers on the lines.
 
 =head1 SEE ALSO
 
-average(1), numgrep(1), numprocess(1), numsum(1), random(1), range(1), round(1)
+average(1), interval(1), numgrep(1), numprocess(1), numsum(1), random(1), range(1), round(1)
 
 =head1 COPYRIGHT
 

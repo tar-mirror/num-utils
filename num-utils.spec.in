@@ -1,4 +1,4 @@
-# $Id: num-utils.spec.in,v 1.8 2003/05/29 21:38:14 suso Exp $
+# $Id: num-utils.spec.in,v 1.10 2003/06/09 14:53:38 suso Exp $
 
 Summary: num-utils are a set of programs for dealing with numbers.
 Name: num-utils
@@ -30,6 +30,7 @@ make ROOT="$RPM_BUILD_ROOT" rpminstall
 %files
 %attr(0755 root root) /usr/bin/average
 %attr(0755 root root) /usr/bin/bound
+%attr(0755 root root) /usr/bin/interval
 %attr(0755 root root) /usr/bin/numgrep
 %attr(0755 root root) /usr/bin/numprocess
 %attr(0755 root root) /usr/bin/numsum
@@ -41,6 +42,7 @@ make ROOT="$RPM_BUILD_ROOT" rpminstall
 %doc %attr(- root root) tests/
 %{_mandir}/man1/average.1.gz
 %{_mandir}/man1/bound.1.gz
+%{_mandir}/man1/interval.1.gz
 %{_mandir}/man1/numgrep.1.gz
 %{_mandir}/man1/numprocess.1.gz
 %{_mandir}/man1/numsum.1.gz
@@ -50,6 +52,12 @@ make ROOT="$RPM_BUILD_ROOT" rpminstall
 
 
 %changelog
+* Mon Jun  9 2003 Suso Banderas <suso@suso.org>
+- 0.3 beta release
+
+* Tue Jun  3 2003 Suso Banderas <suso@suso.org>
+- Added file entries for interval program.
+
 * Thu May 29 2003 Suso Banderas <suso@suso.org>
 - 0.2 beta release.
 

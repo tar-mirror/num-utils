@@ -1,4 +1,18 @@
 
+ June  9th, 2003 14:48 GMT
+---------------------------
+ Third Beta Release v0.3
+ - Added -q option to interval and updated documentation.
+
+ June  3rd, 2003 23:26 GMT
+---------------------------
+ - Added interval program with initial functionality
+ - Changed man page listing on other programs to include interval
+ - Updated GOALS file to include 'interval' goals and also added the -t
+   option to numsum's goals.
+ - Updated spec file with interval file entries.
+ - Updated README file.
+
  May  29th, 2003 20:12 GMT
 --------------------------
  Second Beta Release v0.2
