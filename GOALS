@@ -327,6 +327,7 @@ mode values.
 
               1 2 9 12 88 100 1000
                     ^^
+   -l   -- Use the lower number of the median on even counted sets.
 
    -a   -- average all numbers in the file, not just the first ones found on
            each line.   
@@ -356,6 +357,15 @@ mode values.
 
 
  Usage options  (in addition to the standard options)
+
+
+-- normalize --
+
+  Usage options:
+
+  -R <range>  --  THis is for specifying a range to normalize for instead of 0..1
+
+
 
 -- round --
 

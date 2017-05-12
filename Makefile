@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.11 2003/06/03 23:25:58 suso Exp $
+# $Id: Makefile,v 1.12 2003/09/23 22:26:12 suso Exp $
 # num-utils         A set of programs for doing operations on numbers
 # Copyright (C) 2002-2003 Suso Banderas
 
@@ -22,7 +22,7 @@ VERSION	= $(shell cat VERSION)
 PROJECT	= num-utils
 DIST	= $(PROJECT)-$(VERSION)
 FILES	= $(shell cat MANIFEST)
-UTILS	= average bound interval numgrep numprocess numsum random range round
+UTILS	= average bound interval normalize numgrep numprocess numsum random range round
 DOCS	= CHANGELOG COPYING LICENSE MANIFEST template README GOALS WARNING
 TESTS	= file fractionalnums numbers numbers2 README zeros
 # rpm --showrc is gettin to be hard to parse anymore.

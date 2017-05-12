@@ -28,7 +28,7 @@ use Getopt::Std;
 use strict;
 use vars qw/ %opts $verbose /;
 
-getopts('dhiIqV', \%opts);
+getopts('dhiIlmMqV', \%opts);
 
 if ($opts{'h'}) {
     &help();
@@ -69,8 +69,16 @@ if (@ARGV) {
     process_filehandle(\*STDIN, \@number_array);
 }
 
-my $average = calculate_mean(\@number_array);
+my $average;
+if ($opts{'m'}) {
+    $average = find_mode(\@number_array);
+} elsif ($opts{'M'}) {
+    $average = find_median(\@number_array);
+} else {   
+    $average = calculate_mean(\@number_array);
+}
 
+# post processing.
 if ($opts{'i'}) {
     $average = int($average);
 } elsif ($opts{'I'}) {
@@ -101,6 +109,11 @@ Usage:
 Options:
         -i      Only return the integer portion of the final sum.
         -I      Only return the decimal portion of the final sum
+
+        -m      Find the mode (most occuring) of the list of numbers.
+        -M      Find the median (middle number) of the list of numbers.
+        -l      When finding the median and the count of numbers in the set is even,
+                use the lower middle number instead of the upper middle number.
 
         -d      Debug. For developers only.
         -h      Help: You're looking at it.
@@ -136,6 +149,49 @@ sub calculate_mean {
     return $average;
 }
 
+sub find_mode {
+    my $number_array_ref = shift;
+    my (%numbers_count,$highest_number,$highest_count);
+    foreach $number (@$number_array_ref) {
+        $numbers_count{$number}++;
+        if (!defined($highest_number)) {
+            $highest_number = $number;
+            $highest_count = 1;
+        } elsif ($numbers_count{$number} > $highest_count) {
+            $highest_number = $number;
+            $highest_count++;
+            print STDERR "Highest number is now: $highest_number with a count of $highest_count.\n" if ($verbose >= 2);
+        }
+    }
+    return $highest_number;
+}
+
+# This routine will find the median of a set of numbers.
+# If the set of numbers counts to be even, then it will take
+# the higher indexed number in the middle of the set.
+# If the -l option is set, it will take the lower index
+# number in the middle.
+sub find_median {
+    my $number_array_ref = shift;
+    my @number_array = sort {$a <=> $b} @$number_array_ref;
+    my $array_count = scalar(@number_array);
+    my $median_index;
+    print "The array count is: $array_count\n" if ($verbose >= 2);
+    if (($array_count % 2) == 0) {  # The index count is even.
+        if ($opts{'l'}) {
+            $median_index = int($array_count / 2);
+        } else {
+            $median_index = int(($array_count / 2) + 1);
+        }
+    } else {
+        $median_index = int(($array_count / 2) + 0.5);
+    }
+    $median_index--; # Translate the number to 0 based array set.
+    print "The median index is: " . int(($array_count / 2) - 0.5) . "\n" if ($verbose >= 2);
+    my $median = $number_array[$median_index];
+    return $median;
+}
+
 # Lay down some of that perl pod action.
 =pod
 
@@ -145,21 +201,27 @@ average - Find the average of a set of numbers.
 
 =head1 SYNOPSIS
 
-B<average> [-dhiIV] <FILE>
+B<average> [-dhiIlmMV] <FILE>
 
-| B<average> [-dhiIV]    (Input on STDIN from pipeline.)
+| B<average> [-dhiIlmMV]    (Input on STDIN from pipeline.)
 
-B<average> [-dhiIV]      (Input on STDIN.  Use Ctrl-D to stop.)
+B<average> [-dhiIlmMV]      (Input on STDIN.  Use Ctrl-D to stop.)
 
 =head1 DESCRIPTION
 
-B<average> is a program that is part of the numeric utilities package.  B<average>
-will determine the average from all numbers on input.
+B<average> is a program that is part of the numeric utilities package.  By default
+B<average> will determine the average from all numbers on input.  Other
+options allow you to find the mode and median.
 
 =head1 OPTIONS
 
     -i  Only return the integer portion of the final sum.
     -I  Only return the decimal portion of the final sum
+
+    -m  Find the mode (most occuring) of the list of numbers.
+    -M  Find the median (middle number) of the list of numbers.
+    -l  When finding the median and the count of numbers in the set is even,
+        use the lower middle number instead of the upper middle number.
 
     -h  Help: You're looking at it.
     -V  Increase verbosity.
@@ -168,7 +230,7 @@ will determine the average from all numbers on input.
 
 =head1 SEE ALSO
 
-bound(1), interval(1), numgrep(1), numprocess(1), numsum(1), random(1), range(1), round(1)
+bound(1), interval(1), normalize(1), numgrep(1), numprocess(1), numsum(1), random(1), range(1), round(1)
 
 =head1 COPYRIGHT
 

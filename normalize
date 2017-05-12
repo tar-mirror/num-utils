@@ -1,8 +1,6 @@
 #!/usr/bin/perl -w
 
-# interval: This program calculates and displays the intervals between the
-# first line and the second, between the second line and the third on
-# through the end of the file.
+# normalize:  Normalize a set of numbers. By default between 0 and 1.
 #   
 # Copyright (C) 2002-2003 Suso Banderas
 
@@ -30,9 +28,9 @@ use Getopt::Std;
 use strict;
 use vars qw/ %opts $verbose /;
 
-getopts('hdVq', \%opts);
+my ($file, @number_array, @output_array, $number);
 
-my ($file, @number_array,$interval, $number);
+getopts('hdR:V', \%opts);
 
 if ($opts{'h'}) {
     &help();
@@ -71,13 +69,10 @@ if (@ARGV) {
     process_filehandle(\*STDIN, \@number_array);
 }
 
-my $lastnumber;
-foreach $number (@number_array) {
-    if ($lastnumber) {
-        $interval = $number - $lastnumber;
-        print "$interval\n"; 
-    }        
-    $lastnumber = $number;
+@output_array = normalize(\@number_array);
+
+foreach $number (@output_array) {
+    print "$number\n";
 }
 
 exit(0);
@@ -88,20 +83,23 @@ exit(0);
 
 sub help {
 	print <<"EOF";
------------------------------------------------------------------------
-interval : Calculate the numeric intervals between lines in input.
------------------------------------------------------------------------
+----------------------------------------------
+normalize : Normalize a set of numbers.
+----------------------------------------------
 Usage:
 
-    template [options] <file>
-    | template [options]
-    template [options]
+    normalize [options] <file>
+    | normalize [options]
+    normalize [options]
 
 Options:
-        -q      Don't print any warnings.
         -d      Debug. For developers only.
-        -V      Increase verbosity.
         -h      Help: You're looking at it.
+        -V      Increase verbosity.
+
+        -R <range>   This allows you to specify a different
+                   normalized range instead of from 0 to 1.
+                   For example:  -R 0..5
 EOF
 }
 
@@ -118,48 +116,67 @@ sub process_filehandle {
     return 1;
 }
 
+sub normalize {
+    my $number_array_ref = shift;
+    my ($sum, @normalized_array);
+    my ($top_range, $bottom_range);
+    if ($opts{'R'}) {
+        ($bottom_range,$top_range) = split(/\.\./, $opts{'R'});
+        print "R: $opts{'R'}\nbottom: $bottom_range\ntop: $top_range\n" if ($verbose >= 2);
+    } else {
+        $bottom_range = 0;
+        $top_range = 1;
+    }
+
+    foreach $number (@$number_array_ref) {
+        $sum += $number;
+    }
+    foreach $number (@$number_array_ref) {
+        my $normalized_number = ($number / $sum) * ($top_range - $bottom_range) + $bottom_range;
+        push(@normalized_array, $normalized_number);
+    }
+    return @normalized_array;
+}
 
 # Lay down some of that perl pod action.
 =pod
 
 =head1 NAME
 
-interval - Show the numeric intervals between each line in a file.
+normalize - Normalize a set of numbers. By default between 0 and 1.
 
 =head1 SYNOPSIS
 
-B<interval> [-dhV] <FILE>
+B<normalize> [-dhRV] <FILE>
 
-| B<interval> [-dhV]    (Input on STDIN from pipeline.)
+| B<normalize> [-dhRV]    (Input on STDIN from pipeline.)
 
-B<interval> [-dhV]      (Input on STDIN.  Use Ctrl-D to stop.)
+B<normalize> [-dhRV]      (Input on STDIN.  Use Ctrl-D to stop.)
 
 =head1 DESCRIPTION
 
-B<inter> is a program that is part of the numeric utilities package.  B<interval>
-will calculate and display the numeric interval between one number and the
-next on an input stream.
-
-This can be quite useful for showing quantities of increase or decrease 
-of data when the numbers themselves aren't providing you with what you want.
-For instance, I wrote this program after wanting to see the rate of change
-in box office ticket sales for movies on imdb.com. ;-)
+B<normalize> is a program that is part of the numeric utilities package.  B<normalize>
+will take a set of numbers on input and return that set as a normalized set of numbers
+between 0 and 1 by default.  Or you can use the -R option to specify a different normalized
+range.
 
 =head1 OPTIONS
 
     -h  Help: You're looking at it.
     -V  Increase verbosity.
     -d  Debug mode.  For developers
-    -q  Don't print any warnings.  Quiet mode.
+
+    -R <range>   This allows you to specify a different normalized range instead of from 0 to 1.
+               For example -R 0..5
 
 
 =head1 SEE ALSO
 
-average(1), bound(1), normalize(1), numgrep(1), numprocess(1), numsum(1), random(1), range(1), round(1)
+average(1), bound(1), interval(1), numgrep(1), numprocess(1), numsum(1), random(1), range(1), round(1)
 
 =head1 COPYRIGHT
 
-interval is part of the num-utils package, which is copyrighted by
+normalize is part of the num-utils package, which is copyrighted by
 Suso Banderas and released under the GPL license.  Please read
 the COPYING and LICENSE files that came with the num-utils package
 
@@ -168,7 +185,7 @@ submitions or help for the project.
 
 =head1 MORE INFO
 
-More info on template can be found at:
+More info on normalize can be found at:
 
 =over 1
 

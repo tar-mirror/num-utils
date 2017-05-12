@@ -1,4 +1,29 @@
 
+ Sept. 23rd, 2003 22:23 GMT
+----------------------------
+ Fourth Beta Release v0.4
+
+ - Added -R option to normalize
+ - updated utils to include man page reference to normalize
+ - updated range program to include man page reference to seq(1)
+ - Added feedback directory and files to CVS.
+
+ Sept. 22nd, 2003 22:24 GMT
+----------------------------
+
+ - Added normalize program and documentation.
+
+ Sept. 21st, 2003 20:51 GMT
+---------------------------
+
+ - Added median function and -M option
+ - Added -l option for using the lower median number on even sets.
+
+ Sept. 19th, 2003 15:50 GMT
+----------------------------
+
+ - Added find_mode subroutine to average program and respective documentation.
+
  June  9th, 2003 14:48 GMT
 ---------------------------
  Third Beta Release v0.3
